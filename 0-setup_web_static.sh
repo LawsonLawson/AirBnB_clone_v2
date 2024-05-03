@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
 
-# Description: Script to set up web servers for the deployment of web_static
+# Check if running as root
+if [[ $EUID -ne 0 ]]; then
+    echo "You need root permission to run this script"
+    exit 1
+fi
 
-# Update package lists
-sudo apt-get update
+# Check if Nginx is installed
+if ! dpkg -l | grep -q nginx; then
+    # If not installed, update package lists and install Nginx
+    apt-get update
+    apt-get -y install nginx
+fi
 
-# Install Nginx
-sudo apt-get -y install nginx
+# Create necessary directories, including /data/ if it doesn't exist
+mkdir -p /data/web_static/shared /data/web_static/releases/test /data/
 
-# Allow incoming HTTP traffic through the firewall to Nginx
-sudo ufw allow 'Nginx HTTP'
-
-# Create directory structure
-sudo mkdir -p /data/web_static/{releases/test,shared}
-
-# Create index.html file with basic content
-sudo tee /data/web_static/releases/test/index.html > /dev/null <<EOF
+# Create a dummy HTML file for testing purposes
+tee /data/web_static/releases/test/index.html > /dev/null <<'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,14 +61,14 @@ sudo tee /data/web_static/releases/test/index.html > /dev/null <<EOF
 </html>
 EOF
 
-# Create symbolic link to current release
-sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
+# Create or update symbolic link for current release
+ln -sf /data/web_static/releases/test /data/web_static/current
 
-# Change ownership of /data directory to user ubuntu
-sudo chown -R ubuntu:ubuntu /data/
+# Set ownership permissions for /data/ recursively
+chown -R ubuntu:ubuntu /data/
 
-# Configure Nginx to serve static files
+# Update Nginx configuration to add alias if not already present
 sudo sed -i '/listen 80 default_server/a location /hbnb_static { alias /data/web_static/current/;}' /etc/nginx/sites-enabled/default
 
 # Restart Nginx to apply changes
-sudo service nginx restart
+service nginx restart
