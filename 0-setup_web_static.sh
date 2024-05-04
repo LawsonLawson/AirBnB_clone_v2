@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
 
-# Check if running as root
-if [[ $EUID -ne 0 ]]; then
-    echo "You need root permission to run this script"
-    exit 1
-fi
+# Script that sets up web servers for the deployment of web_static
 
-# Check if Nginx is installed
-if ! dpkg -l | grep -q nginx; then
-    # If not installed, update package lists and install Nginx
-    apt-get update
-    apt-get -y install nginx
-fi
+# Update package lists for upgrades
+sudo apt-get update
 
-# Create necessary directories, including /data/ if it doesn't exist
-mkdir -p /data/web_static/shared /data/web_static/releases/test /data/
+# Install Nginx
+sudo apt-get -y install nginx
 
-# Create a dummy HTML file for testing purposes
+# Allow incoming traffic on port 80 (HTTP) for Nginx
+sudo ufw allow 'Nginx HTTP'
+
+# Create directory structure for storing static website files
+sudo mkdir -p /data/web_static/releases/test/
+sudo mkdir -p /data/web_static/shared/
+
+# Create index.html file with HTML content
 tee /data/web_static/releases/test/index.html > /dev/null <<'EOF'
 <!DOCTYPE html>
 <html lang="en">
@@ -61,14 +60,17 @@ tee /data/web_static/releases/test/index.html > /dev/null <<'EOF'
 </html>
 EOF
 
-# Create or update symbolic link for current release
-ln -sf /data/web_static/releases/test /data/web_static/current
+# Create symbolic link to set current version of website
+sudo ln -s -f /data/web_static/releases/test/ /data/web_static/current
 
-# Set ownership permissions for /data/ recursively
-chown -R ubuntu:ubuntu /data/
+# Change ownership of directories and files to ubuntu user and group
+sudo chown -R ubuntu:ubuntu /data/
 
-# Update Nginx configuration to add alias if not already present
-sudo sed -i '/listen 80 default_server/a location /hbnb_static { alias /data/web_static/current/;}' /etc/nginx/sites-enabled/default
+# Check if the line already exists in the Nginx configuration file
+if ! grep -q "location /hbnb_static" /etc/nginx/sites-enabled/default; then
+    # If the line doesn't exist, add it to serve static files
+    sudo sed -i '/listen 80 default_server/a location /hbnb_static { alias /data/web_static/current/;}' /etc/nginx/sites-enabled/default
+fi
 
-# Restart Nginx to apply changes
-service nginx restart
+# Restart Nginx service to apply changes
+sudo service nginx restart
