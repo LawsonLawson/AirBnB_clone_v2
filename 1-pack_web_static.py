@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """
-Fabric script to generate a compressed archive (tgz) of the web_static directory.
-Usage: fab -f 1-pack_web_static.py do_pack
+Fabric script to generate a compressed archive (tgz) of the web_static
+directory.
 """
 
 from datetime import datetime
