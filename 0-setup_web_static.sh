@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # Script that sets up web servers for the deployment of web_static
 
 # Update package lists for upgrades
