@@ -39,8 +39,7 @@ def do_pack():
         file_name = "versions/web_static_{}.tgz".format(date)
         local("tar -cvzf {} web_static".format(file_name))
         return file_name
-    except Exception as e:
-        print(f"An error occurred during archive creation: {e}")
+    except Exception:
         return None
 
 
@@ -72,8 +71,7 @@ def do_deploy(archive_path):
         run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
         print("Deployment completed successfully.")
         return True
-    except Exception as e:
-        print(f"An error occurred during deployment: {e}")
+    except Exception:
         return False
 
 
