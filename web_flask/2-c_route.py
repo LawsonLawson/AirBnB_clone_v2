@@ -41,7 +41,7 @@ def display_custom_message(text):
     returns a message formatted as 'C <formatted_text>'.
 
     Args:
-    input_text (str): The text parameter provided in the URL, with underscores
+    text (str): The text parameter provided in the URL, with underscores
     as separators.
 
     Returns:
