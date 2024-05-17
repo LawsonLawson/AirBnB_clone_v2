@@ -92,7 +92,7 @@ def display_number_message(n):
 
 @web_application.route('/number_template/<int:n>', strict_slashes=False)
 def render_number_template(n):
-    """
+    '''
     Route handler for the '/number_template/<int:n>' URL.
 
     Renders an HTML template with the provided number.
@@ -103,7 +103,7 @@ def render_number_template(n):
     Returns:
     str: Rendered HTML template '5-number.html' with the number passed as a
     variable.
-    """
+    '''
     return render_template('5-number.html', number=n)
 
 
