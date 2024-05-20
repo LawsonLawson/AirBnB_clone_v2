@@ -1,7 +1,10 @@
 #!/usr/bin/python3
-"""
-start Flask application
-"""
+'''
+Flask Web Application
+
+This script starts a Flask web application that displays a list of states from
+a storage backend in alphabetical order.
+'''
 
 from flask import Flask, render_template
 from models import *
